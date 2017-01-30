@@ -1,2 +1,3 @@
 py-sblgnt==0.7
 greek-accentuation==1.1.1
+greek-utils==0.2

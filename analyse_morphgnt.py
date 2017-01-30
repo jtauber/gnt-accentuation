@@ -4,6 +4,7 @@ import re
 import unicodedata
 
 from greek_accentuation.accentuation import get_accent_type
+from greekutils.trigrams import trigrams
 from pysblgnt import morphgnt_rows
 
 
@@ -77,8 +78,6 @@ MOVABLE = [
 
 
 ENCLITICS = [
-    # "μοῦ", "μοί", "μέ",
-    # "σου", "σοί", "σέ",
     "μου", "μοι", "με",
     "σου", "σοι", "σε",
     "τὶς", "τὶ", "τινός", "τινί", "τινά", "τινές", "τινάς", "τινῶν", "τισίν",
@@ -102,13 +101,10 @@ UNACCENTED_FOREIGN = [
 ]
 
 
-for book_num in range(1, 28):
-    prev_word = None
-    prev_proclitic_extra_accent = None
-    prev_enclitic_extra_accent = None
+def analyses(book_num):
 
     for row in morphgnt_rows(book_num):
-        text = re.sub("[⸀⸂⸁⸃\[\]\(\)—⸄⟦⟧12]", "", row["text"]).lower()
+        text = re.sub("[⸀⸂⸁⸃\[\]\(\)⸄⟦⟧12]", "", row["text"]).lower()
         word = row["word"]
         norm = row["norm"]
 
@@ -121,24 +117,17 @@ for book_num in range(1, 28):
         if norm.endswith("(ν)"):
             if strip_accents(word) == strip_accents(norm[:-3]):
                 norm = norm[:-3]
-            if strip_accents(word) ==  strip_accents(norm[:-3]) + "ν":
+            elif strip_accents(word) ==  strip_accents(norm[:-3]) + "ν":
                 norm = norm[:-3] + "ν"
 
         if norm.endswith("(ς)"):
             if strip_accents(word) == strip_accents(norm[:-3]):
                 norm = norm[:-3]
-            if strip_accents(word) ==  strip_accents(norm[:-3]) + "ς":
+            elif strip_accents(word) ==  strip_accents(norm[:-3]) + "ς":
                 norm = norm[:-3] + "ς"
 
-        if (word, norm) in ELISION:
-            elision = True
-        else:
-            elision = False
-
-        if (word, norm) in MOVABLE:
-            movable = True
-        else:
-            movable = False
+        elision = (word, norm) in ELISION
+        movable = (word, norm) in MOVABLE
 
         if has_grave(word) and grave_to_acute(word) == norm:
             final_grave = True
@@ -174,50 +163,131 @@ for book_num in range(1, 28):
             enclitic = False
             enclitic_lost_accent = False
 
-        flags = "".join([
-            "*" if val else "-"
-            for val in [proclitic, enclitic]
-        ]) + " " + "".join([
-            "*" if val else "-"
-            for val in [elision, movable, final_grave, extra_accent, proclitic_extra_accent, enclitic_lost_accent]
-        ])
-
         if "\u0301" not in unicodedata.normalize("NFD", word2) and "\u0342" not in unicodedata.normalize("NFD", word2):
-            at = "--"
+            if final_grave:
+                at = "1A"
+            else:
+                at = "--"
         else:
             accent_type = get_accent_type(word2)
             at = str(accent_type[0]) + {"\u0301": "A", "\u0342": "C"}[accent_type[1]]
 
-        if prev_proclitic_extra_accent or prev_enclitic_extra_accent:
-            assert enclitic
-
-        prev_proclitic_extra_accent = False
-        prev_enclitic_extra_accent = False
-
+        enclitic_extra_accent = False
         if word in ["ἔστι", "ἔστιν"]:
-            if prev_word in [None, "οὐκ", "καὶ", "τοῦτ’", "ἀλλ’", "εἰ"]:
-                print(flags, "**", word, norm, row["ccat-pos"], row["bcv"])
-            else:
-                print(flags, "EM", word, norm, row["ccat-pos"], row["bcv"])
+            at = "??"
         elif proclitic_extra_accent:
-            print(flags, "**", word, norm, row["ccat-pos"], row["bcv"])
-            prev_proclitic_extra_accent = True
+            at = "**"
         elif norm in UNACCENTED_FOREIGN:
             assert norm == strip_accents(norm)
-            print(flags, "UF", word, norm, row["ccat-pos"], row["bcv"])
+            at = "UF"
         else:
-            print(flags, at, word, norm, row["ccat-pos"], row["bcv"])
             if word != norm:
                 if not elision and not movable and not final_grave and not extra_accent and not enclitic_lost_accent:
                     assert enclitic
-                    prev_enclitic_extra_accent = True
+                    enclitic_extra_accent = True
             if norm == strip_accents(norm):
                 assert proclitic or enclitic
-        prev_word = word
 
+        punc = None
         if text != word:
-            if text[:-1] == word:
-                print(text[-1])
-                prev_word = None
+            if text[0] == "—":
+                assert text[1:] == word
+            elif text[-2:] in [";—", ".—", ",—"]:
+                assert text[:-2] == word
+                punc = text[-2]
             else:
-                assert False
+                assert text[:-1] == word, (text, word)
+                punc = text[-1]
+
+        yield {
+            "proclitic": proclitic,
+            "enclitic": enclitic,
+            "elision": elision,
+            "movable": movable,
+            "final_grave": final_grave,
+            "extra_accent": extra_accent,
+            "proclitic_extra_accent": proclitic_extra_accent,
+            "enclitic_extra_accent": enclitic_extra_accent,
+            "enclitic_lost_accent": enclitic_lost_accent,
+            "punc": punc,
+            "at": at,
+            "word": word,
+            "norm": norm,
+            "row": row,
+        }
+
+
+for book_num in range(1, 28):
+    for prev, this, following in trigrams(analyses(book_num)):
+
+        flags = "".join([
+            "*" if val else "-"
+            for val in [
+                this["proclitic"],
+                this["enclitic"],
+            ]
+        ]) + " " + "".join([
+            "*" if val else "-"
+            for val in [
+                this["elision"],
+                this["movable"],
+                this["final_grave"],
+                this["extra_accent"],
+                this["proclitic_extra_accent"],
+                this["enclitic_extra_accent"],
+                this["enclitic_lost_accent"],
+                bool(this["punc"]),
+            ]
+        ])
+
+        if prev and (prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]):
+            assert this["enclitic"]
+
+        at = this["at"]
+        if this["word"] in ["ἔστι", "ἔστιν"]:
+            if prev and ((prev["word"] in [None, "οὐκ", "καὶ", "τοῦτ’", "ἀλλ’", "εἰ"]) or prev["punc"]):
+                at = "E*"
+            else:
+                at = "EM"
+
+        print(flags, at, this["word"])
+
+        if this["punc"] not in [None, ","] and this["final_grave"]:
+            assert (this["row"]["bcv"], this["row"]["text"]) in [
+                ("071302", "ἐὰν⸅"),  # has grave despite textual variant symbol
+                ("071437", "⸀ἐστὶν·"),  # has grave despite colon. partly due to being textual variant?
+            ]
+
+        if this["at"] == "1A" and not this["final_grave"] and not this["punc"] and not following["enclitic"] and not this["row"]["lemma"] in ["τίς", "ἱνατί"]:
+            assert (this["row"]["bcv"], this["row"]["text"]) in [
+                ("011514", "ὁδηγοί"),  # due to textual variant?
+                ("011515", "παραβολήν"),  # due to textual variant?
+                ("020727", "γάρ"),  # due to textual variant?
+                ("020947", "καλόν"),  # due to textual variant?
+                ("032339", "αὐτόν"),  # due to textual variant?
+                ("050906", "⸂ὅ"),  # textual variant or something else?
+                ("060834", "ὅς"),  # due to textual variant?
+                ("270911", "Ἀβαδδών"),  # due to textual variant?
+
+                ("030236", "Ἀσήρ"),  # due to open paren following
+                ("040138", "Ῥαββί"),  # due to open paren following
+                ("040907", "Σιλωάμ"),  # due to open paren following
+                ("050405", "Ἰερουσαλήμ"),  # due to open paren following
+                ("060416", "Ἀβραάμ"),  # due to open paren following
+
+                ("071416", "Ἀμήν"),  # some texts have comma but SBLGNT doesn't?
+
+                ("050325", "Ἀβραάμ"),  # capital following (speech?)
+                ("200208", "γραφήν"),  # capital following (speech?)
+                ("200211", "εἰπών"),  # capital following (speech?)
+                ("200211", "καί"),  # capital following (speech?)
+
+                ("012115", "Δαυίδ"),  # why?
+                ("020402", "πολλά"),  # why?
+                ("031805", "αὐτήν"),  # why?
+                ("051029", "μεταπεμφθείς"),  # why?
+                ("190306", "⸀ὅς"),  # why?
+                ("190810", "θεόν"),  # why?
+            ]
+
+# 070916 good example of a trigram condition (plus others in same commit)
