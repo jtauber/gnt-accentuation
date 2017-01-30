@@ -126,6 +126,8 @@ def analyses(book_num):
             elif strip_accents(word) ==  strip_accents(norm[:-3]) + "ς":
                 norm = norm[:-3] + "ς"
 
+        diff = (word != norm)
+
         elision = (word, norm) in ELISION
         movable = (word, norm) in MOVABLE
 
@@ -163,6 +165,11 @@ def analyses(book_num):
             enclitic = False
             enclitic_lost_accent = False
 
+        if word in ["οὐκ", "καὶ", "τοῦτ’", "ἀλλ’", "εἰ"]:
+            pre_esti_exception = True
+        else:
+            pre_esti_exception = False
+
         if "\u0301" not in unicodedata.normalize("NFD", word2) and "\u0342" not in unicodedata.normalize("NFD", word2):
             if final_grave:
                 at = "1A"
@@ -173,7 +180,9 @@ def analyses(book_num):
             at = str(accent_type[0]) + {"\u0301": "A", "\u0342": "C"}[accent_type[1]]
 
         enclitic_extra_accent = False
+        esti = False
         if word in ["ἔστι", "ἔστιν"]:
+            esti = True
             at = "??"
         elif proclitic_extra_accent:
             at = "**"
@@ -181,7 +190,7 @@ def analyses(book_num):
             assert norm == strip_accents(norm)
             at = "UF"
         else:
-            if word != norm:
+            if diff:
                 if not elision and not movable and not final_grave and not extra_accent and not enclitic_lost_accent:
                     assert enclitic
                     enclitic_extra_accent = True
@@ -200,6 +209,7 @@ def analyses(book_num):
                 punc = text[-1]
 
         yield {
+            "diff": diff,
             "proclitic": proclitic,
             "enclitic": enclitic,
             "elision": elision,
@@ -209,6 +219,8 @@ def analyses(book_num):
             "proclitic_extra_accent": proclitic_extra_accent,
             "enclitic_extra_accent": enclitic_extra_accent,
             "enclitic_lost_accent": enclitic_lost_accent,
+            "pre_esti_exception": pre_esti_exception,
+            "esti": esti,
             "punc": punc,
             "at": at,
             "word": word,
@@ -220,10 +232,25 @@ def analyses(book_num):
 for book_num in range(1, 28):
     for prev, this, following in trigrams(analyses(book_num)):
 
-        flags = "".join([
+        if prev and (prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]):
+            assert this["enclitic"]
+
+        at = this["at"]
+        esti_emph = False
+        if this["esti"]:
+            if not prev or prev["pre_esti_exception"] or prev["punc"]:
+                at = "E*"
+            else:
+                esti_emph = True
+                at = "EM"
+
+        flags = (
+            "*" if this["diff"] else "-"
+        ) + " " + "".join([
             "*" if val else "-"
             for val in [
                 this["proclitic"],
+                this["pre_esti_exception"],
                 this["enclitic"],
             ]
         ]) + " " + "".join([
@@ -236,19 +263,25 @@ for book_num in range(1, 28):
                 this["proclitic_extra_accent"],
                 this["enclitic_extra_accent"],
                 this["enclitic_lost_accent"],
-                bool(this["punc"]),
+                this["esti"],
+                esti_emph,
+            ]
+        ]) + " " + (
+            "*" if bool(this["punc"]) else "-"
+        ) + " " + "".join([
+            "*" if val else "-"
+            for val in [
+                prev and prev["proclitic_extra_accent"],
+                prev and prev["enclitic_extra_accent"],
+                prev and prev["pre_esti_exception"],
+                not prev or prev["punc"],
+            ]
+        ]) + " " + "".join([
+            "*" if val else "-"
+            for val in [
+                following and following["enclitic"]
             ]
         ])
-
-        if prev and (prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]):
-            assert this["enclitic"]
-
-        at = this["at"]
-        if this["word"] in ["ἔστι", "ἔστιν"]:
-            if prev and ((prev["word"] in [None, "οὐκ", "καὶ", "τοῦτ’", "ἀλλ’", "εἰ"]) or prev["punc"]):
-                at = "E*"
-            else:
-                at = "EM"
 
         print(flags, at, this["word"])
 
