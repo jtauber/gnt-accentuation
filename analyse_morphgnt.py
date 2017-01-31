@@ -246,29 +246,7 @@ for book_num in range(1, 28):
 
         flags = (
             "*" if this["diff"] else "-"
-        ) + " " + "".join([
-            "*" if val else "-"
-            for val in [
-                this["proclitic"],
-                this["pre_esti_exception"],
-                this["enclitic"],
-            ]
-        ]) + " " + "".join([
-            "*" if val else "-"
-            for val in [
-                this["elision"],
-                this["movable"],
-                this["final_grave"],
-                this["extra_accent"],
-                this["proclitic_extra_accent"],
-                this["enclitic_extra_accent"],
-                this["enclitic_lost_accent"],
-                this["esti"],
-                esti_emph,
-            ]
-        ]) + " " + (
-            "*" if bool(this["punc"]) else "-"
-        ) + " " + "".join([
+        ) + " | " + "".join([
             "*" if val else "-"
             for val in [
                 prev and prev["proclitic_extra_accent"],
@@ -276,14 +254,40 @@ for book_num in range(1, 28):
                 prev and prev["pre_esti_exception"],
                 not prev or prev["punc"],
             ]
+        ]) + " | " + "".join([
+            "*" if val else "-"
+            for val in [
+                this["proclitic"],
+                this["pre_esti_exception"],
+                this["enclitic"],
+            ]
+        ]) + " | " + "".join([
+            "*" if val else "-"
+            for val in [
+                this["elision"],
+                this["movable"],
+                this["esti"],
+                esti_emph,
+            ]
         ]) + " " + "".join([
+            "*" if val else "-"
+            for val in [
+                this["final_grave"],
+                this["extra_accent"],
+                this["proclitic_extra_accent"],
+                this["enclitic_extra_accent"],
+                this["enclitic_lost_accent"],
+            ]
+        ]) + " " + at + " | " + (
+            "*" if bool(this["punc"]) else "-"
+        ) + " " + "".join([
             "*" if val else "-"
             for val in [
                 following and following["enclitic"]
             ]
         ])
 
-        print(flags, at, this["word"])
+        print(this["row"]["bcv"], flags, this["row"]["text"], this["row"]["lemma"])
 
         if this["punc"] not in [None, ","] and this["final_grave"]:
             assert (this["row"]["bcv"], this["row"]["text"]) in [
