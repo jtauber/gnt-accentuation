@@ -104,12 +104,22 @@ UNACCENTED_FOREIGN = [
 def analyses(book_num):
 
     for row in morphgnt_rows(book_num):
-        text = re.sub("[⸀⸂⸁⸃\[\]\(\)⸄⟦⟧12]", "", row["text"]).lower()
+        text = row["text"]
+        text1 = re.sub("[⸀⸂⸁⸃\[\]\(\)⸄⟦⟧12]", "", text)
+        text2 = text1.lower()
         word = row["word"]
         norm = row["norm"]
 
         if (word, norm) in INCONSISTENCIES:
             continue
+
+        capitalized = (
+            text1[0] == text2[0].upper()
+            and
+            norm[0] != norm[0].upper()
+        )
+
+        parenthetical = (text[0] == "(")
 
         word = word.lower()
         norm = norm.lower()
@@ -198,18 +208,20 @@ def analyses(book_num):
                 assert proclitic or enclitic
 
         punc = None
-        if text != word:
-            if text[0] == "—":
-                assert text[1:] == word
-            elif text[-2:] in [";—", ".—", ",—"]:
-                assert text[:-2] == word
-                punc = text[-2]
+        if text2 != word:
+            if text2[0] == "—":
+                assert text2[1:] == word
+            elif text2[-2:] in [";—", ".—", ",—"]:
+                assert text2[:-2] == word
+                punc = text2[-2]
             else:
-                assert text[:-1] == word, (text, word)
-                punc = text[-1]
+                assert text2[:-1] == word, (text2, word)
+                punc = text2[-1]
 
         yield {
             "diff": diff,
+            "capitalized": capitalized,
+            "parenthetical": parenthetical,
             "proclitic": proclitic,
             "enclitic": enclitic,
             "elision": elision,
@@ -264,6 +276,8 @@ for book_num in range(1, 28):
         ]) + " | " + "".join([
             "*" if val else "-"
             for val in [
+                this["capitalized"],
+                this["parenthetical"],
                 this["elision"],
                 this["movable"],
                 this["esti"],
@@ -283,7 +297,9 @@ for book_num in range(1, 28):
         ) + " " + "".join([
             "*" if val else "-"
             for val in [
-                following and following["enclitic"]
+                following and following["capitalized"],
+                following and following["parenthetical"],
+                following and following["enclitic"],
             ]
         ])
 
@@ -294,8 +310,15 @@ for book_num in range(1, 28):
                 ("071302", "ἐὰν⸅"),  # has grave despite textual variant symbol
                 ("071437", "⸀ἐστὶν·"),  # has grave despite colon. partly due to being textual variant?
             ]
+            print("XXX1")
 
-        if this["at"] == "1A" and not this["final_grave"] and not this["punc"] and not following["enclitic"] and not this["row"]["lemma"] in ["τίς", "ἱνατί"]:
+        if this["at"] == "1A" and not this["final_grave"] and \
+                not this["punc"] and \
+                not following["parenthetical"] and \
+                not following["capitalized"] and \
+                not following["enclitic"] and \
+                not this["row"]["lemma"] in ["τίς", "ἱνατί"]:
+
             assert (this["row"]["bcv"], this["row"]["text"]) in [
                 ("011514", "ὁδηγοί"),  # due to textual variant?
                 ("011515", "παραβολήν"),  # due to textual variant?
@@ -306,18 +329,7 @@ for book_num in range(1, 28):
                 ("060834", "ὅς"),  # due to textual variant?
                 ("270911", "Ἀβαδδών"),  # due to textual variant?
 
-                ("030236", "Ἀσήρ"),  # due to open paren following
-                ("040138", "Ῥαββί"),  # due to open paren following
-                ("040907", "Σιλωάμ"),  # due to open paren following
-                ("050405", "Ἰερουσαλήμ"),  # due to open paren following
-                ("060416", "Ἀβραάμ"),  # due to open paren following
-
                 ("071416", "Ἀμήν"),  # some texts have comma but SBLGNT doesn't?
-
-                ("050325", "Ἀβραάμ"),  # capital following (speech?)
-                ("200208", "γραφήν"),  # capital following (speech?)
-                ("200211", "εἰπών"),  # capital following (speech?)
-                ("200211", "καί"),  # capital following (speech?)
 
                 ("012115", "Δαυίδ"),  # why?
                 ("020402", "πολλά"),  # why?
@@ -326,5 +338,6 @@ for book_num in range(1, 28):
                 ("190306", "⸀ὅς"),  # why?
                 ("190810", "θεόν"),  # why?
             ]
+            print("XXX2")
 
 # 070916 good example of a trigram condition (plus others in same commit)
