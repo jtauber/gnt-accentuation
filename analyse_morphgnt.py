@@ -105,7 +105,7 @@ def analyses(book_num):
 
     for row in morphgnt_rows(book_num):
         text = row["text"]
-        text1 = re.sub("[⸀⸂⸁⸃\[\]\(\)⸄⟦⟧12]", "", text)
+        text1 = re.sub("[⸀⸂⸁⸄⸃\[\]\(\)⟦⟧12]", "", text)
         text2 = text1.lower()
         word = row["word"]
         norm = row["norm"]
@@ -310,7 +310,6 @@ for book_num in range(1, 28):
                 ("071302", "ἐὰν⸅"),  # has grave despite textual variant symbol
                 ("071437", "⸀ἐστὶν·"),  # has grave despite colon. partly due to being textual variant?
             ]
-            print("XXX1")
 
         if this["at"] == "1A" and not this["final_grave"] and \
                 not this["punc"] and \
@@ -338,6 +337,5 @@ for book_num in range(1, 28):
                 ("190306", "⸀ὅς"),  # why?
                 ("190810", "θεόν"),  # why?
             ]
-            print("XXX2")
 
 # 070916 good example of a trigram condition (plus others in same commit)
