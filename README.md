@@ -23,4 +23,6 @@ What this is basically saying (in compact form) is:
 - ἔστιν is followed by an enclitic 
 - μου is enclitic
     
-Lots more coming!
+It makes it easy to both match certain conditions like "find all the enclitics with a preceding accented proclitic which are themselves also accented because what follows is another enclitic" and also verify that a text has been accented correctly according to the rules (or verify the rules adequately explain the accentuation of the text).
+
+Lots more coming! I soon plan to incorporated parts of `greek-accentuation` to annotate why verbs are accented the way they are and eventually nominals.
