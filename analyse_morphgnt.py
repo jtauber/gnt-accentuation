@@ -9,7 +9,10 @@ from pysblgnt import morphgnt_rows
 
 
 def strip_accents(s):
-    return unicodedata.normalize("NFC", "".join((c for c in unicodedata.normalize("NFD", s) if c not in ["\u0300", "\u0301", "\u0342"])))
+    return unicodedata.normalize("NFC", "".join((
+        c for c in unicodedata.normalize("NFD", s)
+        if c not in ["\u0300", "\u0301", "\u0342"]
+    )))
 
 
 def has_grave(s):
@@ -127,13 +130,13 @@ def analyses(book_num):
         if norm.endswith("(ν)"):
             if strip_accents(word) == strip_accents(norm[:-3]):
                 norm = norm[:-3]
-            elif strip_accents(word) ==  strip_accents(norm[:-3]) + "ν":
+            elif strip_accents(word) == strip_accents(norm[:-3]) + "ν":
                 norm = norm[:-3] + "ν"
 
         if norm.endswith("(ς)"):
             if strip_accents(word) == strip_accents(norm[:-3]):
                 norm = norm[:-3]
-            elif strip_accents(word) ==  strip_accents(norm[:-3]) + "ς":
+            elif strip_accents(word) == strip_accents(norm[:-3]) + "ς":
                 norm = norm[:-3] + "ς"
 
         diff = (word != norm)
@@ -180,14 +183,16 @@ def analyses(book_num):
         else:
             pre_esti_exception = False
 
-        if "\u0301" not in unicodedata.normalize("NFD", word2) and "\u0342" not in unicodedata.normalize("NFD", word2):
+        if "\u0301" not in unicodedata.normalize("NFD", word2) and \
+                "\u0342" not in unicodedata.normalize("NFD", word2):
             if final_grave:
                 at = "1A"
             else:
                 at = "--"
         else:
             accent_type = get_accent_type(word2)
-            at = str(accent_type[0]) + {"\u0301": "A", "\u0342": "C"}[accent_type[1]]
+            at = str(accent_type[0]) + \
+                {"\u0301": "A", "\u0342": "C"}[accent_type[1]]
 
         enclitic_extra_accent = False
         esti = False
@@ -201,7 +206,8 @@ def analyses(book_num):
             at = "UF"
         else:
             if diff:
-                if not elision and not movable and not final_grave and not extra_accent and not enclitic_lost_accent:
+                if not elision and not movable and not final_grave and \
+                        not extra_accent and not enclitic_lost_accent:
                     assert enclitic
                     enclitic_extra_accent = True
             if norm == strip_accents(norm):
@@ -244,7 +250,9 @@ def analyses(book_num):
 for book_num in range(1, 28):
     for prev, this, following in trigrams(analyses(book_num)):
 
-        if prev and (prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]):
+        if prev and (
+            prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]
+        ):
             assert this["enclitic"]
 
         at = this["at"]
@@ -303,12 +311,18 @@ for book_num in range(1, 28):
             ]
         ])
 
-        print(this["row"]["bcv"], flags, this["row"]["text"], this["row"]["lemma"])
+        print(
+            this["row"]["bcv"],
+            flags,
+            this["row"]["text"],
+            this["row"]["lemma"]
+        )
 
         if this["punc"] not in [None, ","] and this["final_grave"]:
             assert (this["row"]["bcv"], this["row"]["text"]) in [
                 ("071302", "ἐὰν⸅"),  # has grave despite textual variant symbol
-                ("071437", "⸀ἐστὶν·"),  # has grave despite colon. partly due to being textual variant?
+                ("071437", "⸀ἐστὶν·"),  # has grave despite colon
+                #                        partly due to being textual variant?
             ]
 
         if this["at"] == "1A" and not this["final_grave"] and \
@@ -328,7 +342,7 @@ for book_num in range(1, 28):
                 ("060834", "ὅς"),  # due to textual variant?
                 ("270911", "Ἀβαδδών"),  # due to textual variant?
 
-                ("071416", "Ἀμήν"),  # some texts have comma but SBLGNT doesn't?
+                ("071416", "Ἀμήν"),  # some texts have comma but not SBLGNT?
 
                 ("012115", "Δαυίδ"),  # why?
                 ("020402", "πολλά"),  # why?
