@@ -10,17 +10,23 @@ At the moment it's focused on describing the rules around proclitics and encliti
 011037 - | ---- | --* | ------ ----- -- | - --- μου ἐγώ
 ```
 
+```
+011037 #::----::##-::---#--:-----:--::-:--# οὐκ οὐ οὐ
+011037 #::--#-::--#::----#-:-----:E#::-:--# ἔστιν ἐστί(ν) εἰμί
+011037 -::----::--#::------:-----:--::-:--- μου μου ἐγώ
+```
+
 What this is basically saying (in compact form) is:
 
-- οὐκ is not the same as its normalised form
+- οὐκ is not the same as its normalised form οὐ
 - οὐκ is a proclitic
 - οὐκ is an exception to the way ἐστίν is accented
-- οὐκ has a movable kappa
+- οὐκ has a movable (kappa)
 - οὐκ is followed by an enclitic
-- ἔστιν is not the same as its normalised form
+- ἔστιν is not the same as its normalised form ἐστί(ν)
 - ἔστιν is preceded by a proclitic
 - ἔστιν is an enclitic
-- ἔστιν is a variant of ἐστίν
+- ἔστιν is a variant of ἐστί
 - ἔστιν is preceded by a word that causes it to be accented ἔστιν
 - ἔστιν is followed by an enclitic
 - μου is enclitic

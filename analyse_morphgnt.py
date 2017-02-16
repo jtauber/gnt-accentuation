@@ -198,9 +198,9 @@ def analyses(book_num):
         esti = False
         if word in ["ἔστι", "ἔστιν"]:
             esti = True
-            at = "??"
+            at = "??"  # temporary: will change below
         elif proclitic_extra_accent:
-            at = "**"
+            at = "##"
         elif norm in UNACCENTED_FOREIGN:
             assert norm == strip_accents(norm)
             at = "UF"
@@ -259,30 +259,30 @@ for book_num in range(1, 28):
         esti_emph = False
         if this["esti"]:
             if not prev or prev["pre_esti_exception"] or prev["punc"]:
-                at = "E*"
+                at = "E#"
             else:
                 esti_emph = True
                 at = "EM"
 
         flags = (
-            "*" if this["diff"] else "-"
-        ) + " | " + "".join([
-            "*" if val else "-"
+            "#" if this["diff"] else "-"
+        ) + "::" + "".join([
+            "#" if val else "-"
             for val in [
                 prev and prev["proclitic_extra_accent"],
                 prev and prev["enclitic_extra_accent"],
                 prev and prev["pre_esti_exception"],
                 not prev or prev["punc"],
             ]
-        ]) + " | " + "".join([
-            "*" if val else "-"
+        ]) + "::" + "".join([
+            "#" if val else "-"
             for val in [
                 this["proclitic"],
                 this["pre_esti_exception"],
                 this["enclitic"],
             ]
-        ]) + " | " + "".join([
-            "*" if val else "-"
+        ]) + "::" + "".join([
+            "#" if val else "-"
             for val in [
                 this["capitalized"],
                 this["parenthetical"],
@@ -291,8 +291,8 @@ for book_num in range(1, 28):
                 this["esti"],
                 esti_emph,
             ]
-        ]) + " " + "".join([
-            "*" if val else "-"
+        ]) + ":" + "".join([
+            "#" if val else "-"
             for val in [
                 this["final_grave"],
                 this["extra_accent"],
@@ -300,10 +300,10 @@ for book_num in range(1, 28):
                 this["enclitic_extra_accent"],
                 this["enclitic_lost_accent"],
             ]
-        ]) + " " + at + " | " + (
-            "*" if bool(this["punc"]) else "-"
-        ) + " " + "".join([
-            "*" if val else "-"
+        ]) + ":" + at + "::" + (
+            "#" if bool(this["punc"]) else "-"
+        ) + ":" + "".join([
+            "#" if val else "-"
             for val in [
                 following and following["capitalized"],
                 following and following["parenthetical"],
@@ -315,6 +315,7 @@ for book_num in range(1, 28):
             this["row"]["bcv"],
             flags,
             this["row"]["text"],
+            this["row"]["norm"],
             this["row"]["lemma"]
         )
 
