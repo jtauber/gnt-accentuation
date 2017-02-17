@@ -102,6 +102,16 @@ ENCLITICS = [
     "γέ", "τέ",
 ]
 
+INDEF_ENCLITICS = [
+    # indefinite pronouns
+    "τὶς", "τὶ",
+    "τινά", "τινές", "τινός", "τινάς", "τισίν", "τινί", "τινῶν",
+
+    # indefinite adverbs
+    "πού", "πώ", "πώς",
+    "ποτέ",
+]
+
 DISSYLLABIC_ENCLITICS = [
     word for word in ENCLITICS if len(syllabify(word)) == 2
 ]
@@ -225,10 +235,12 @@ def analyses(book_num):
             assert norm == strip_accents(norm)
             accent_type = "UF"
         else:
-            if diff:
-                if not elision and not movable and not final_grave and \
-                        not extra_accent and not enclitic_lost_accent:
+            if not elision and not movable and not final_grave and \
+                    not extra_accent and not enclitic_lost_accent:
+                if diff:
                     assert enclitic
+                    enclitic_extra_accent = True
+                elif word in INDEF_ENCLITICS and word != strip_accents(word):
                     enclitic_extra_accent = True
             if norm == strip_accents(norm):
                 assert proclitic or enclitic
@@ -270,12 +282,6 @@ def analyses(book_num):
 
 for book_num in range(1, 28):
     for prev, this, following in trigrams(analyses(book_num)):
-
-        if prev and (
-            prev["proclitic_extra_accent"] or prev["enclitic_extra_accent"]
-        ):
-            assert this["enclitic"]
-
         esti_emph = False
         if this["esti"]:
             if not prev or prev["pre_esti_exception"] or prev["punc"]:
