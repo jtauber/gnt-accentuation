@@ -82,12 +82,23 @@ MOVABLE = [
 
 
 ENCLITICS = [
+    # personal pronouns
     "μου", "μοι", "με",
     "σου", "σοι", "σε",
+
+    # indefinite pronouns
     "τὶς", "τὶ", "τινός", "τινί", "τινά", "τινές", "τινάς", "τινῶν", "τισίν",
+
+    # indefinite adverbs
     "πού", "ποτέ", "πώ", "πώς",
+
+    # dissyllabic forms of εἰμί
     "εἰμί", "εἰσίν", "ἐσμέν", "ἐστέ", "ἐστίν", "ἐστί",
+
+    # dissyllabic forms of φημί
     "φησίν", "φημί", "φασίν",
+
+    # certain particles
     "γέ", "τέ",
 ]
 
