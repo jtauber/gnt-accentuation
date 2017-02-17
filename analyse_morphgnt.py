@@ -186,24 +186,24 @@ def analyses(book_num):
         if "\u0301" not in unicodedata.normalize("NFD", word2) and \
                 "\u0342" not in unicodedata.normalize("NFD", word2):
             if final_grave:
-                at = "1A"
+                accent_type = "1A"
             else:
-                at = "--"
+                accent_type = "--"
         else:
-            accent_type = get_accent_type(word2)
-            at = str(accent_type[0]) + \
-                {"\u0301": "A", "\u0342": "C"}[accent_type[1]]
+            accent_type2 = get_accent_type(word2)
+            accent_type = str(accent_type2[0]) + \
+                {"\u0301": "A", "\u0342": "C"}[accent_type2[1]]
 
         enclitic_extra_accent = False
         esti = False
         if word in ["ἔστι", "ἔστιν"]:
             esti = True
-            at = "??"  # temporary: will change below
+            accent_type = "??"  # temporary: will change below
         elif proclitic_extra_accent:
-            at = "##"
+            accent_type = "##"
         elif norm in UNACCENTED_FOREIGN:
             assert norm == strip_accents(norm)
-            at = "UF"
+            accent_type = "UF"
         else:
             if diff:
                 if not elision and not movable and not final_grave and \
@@ -240,7 +240,7 @@ def analyses(book_num):
             "pre_esti_exception": pre_esti_exception,
             "esti": esti,
             "punc": punc,
-            "at": at,
+            "accent_type": accent_type,
             "word": word,
             "norm": norm,
             "row": row,
@@ -255,14 +255,14 @@ for book_num in range(1, 28):
         ):
             assert this["enclitic"]
 
-        at = this["at"]
         esti_emph = False
         if this["esti"]:
             if not prev or prev["pre_esti_exception"] or prev["punc"]:
-                at = "E#"
+                this["accent_type"] = "E#"
             else:
                 esti_emph = True
-                at = "EM"
+                this["accent_type"] = "EM"
+        accent_type = this["accent_type"]
 
         flags = (
             "#" if this["diff"] else "-"
@@ -274,7 +274,7 @@ for book_num in range(1, 28):
                 prev and prev["pre_esti_exception"],
                 not prev or prev["punc"],
             ]
-        ]) + "::" + "".join([
+        ]) + ":" + (prev["accent_type"] if prev else "--") + "::" + "".join([
             "#" if val else "-"
             for val in [
                 this["proclitic"],
@@ -300,7 +300,7 @@ for book_num in range(1, 28):
                 this["enclitic_extra_accent"],
                 this["enclitic_lost_accent"],
             ]
-        ]) + ":" + at + "::" + (
+        ]) + ":" + accent_type + "::" + (
             "#" if bool(this["punc"]) else "-"
         ) + ":" + "".join([
             "#" if val else "-"
@@ -326,7 +326,7 @@ for book_num in range(1, 28):
                 #                        partly due to being textual variant?
             ]
 
-        if this["at"] == "1A" and not this["final_grave"] and \
+        if this["accent_type"] == "1A" and not this["final_grave"] and \
                 not this["punc"] and \
                 not following["parenthetical"] and \
                 not following["capitalized"] and \
