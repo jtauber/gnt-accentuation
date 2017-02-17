@@ -3,6 +3,7 @@
 import re
 import unicodedata
 
+from greek_accentuation.syllabify import syllabify
 from greek_accentuation.accentuation import get_accent_type
 from greekutils.trigrams import trigrams
 from pysblgnt import morphgnt_rows
@@ -90,6 +91,9 @@ ENCLITICS = [
     "γέ", "τέ",
 ]
 
+DISSYLLABIC_ENCLITICS = [
+    word for word in ENCLITICS if len(syllabify(word)) == 2
+]
 
 PROCLITICS = [
     "ὁ", "ἡ", "οἱ", "αἱ",
@@ -174,9 +178,14 @@ def analyses(book_num):
                 enclitic_lost_accent = True
             else:
                 enclitic_lost_accent = False
+            if norm in DISSYLLABIC_ENCLITICS:
+                dissyllabic_enclitic = True
+            else:
+                dissyllabic_enclitic = False
         else:
             enclitic = False
             enclitic_lost_accent = False
+            dissyllabic_enclitic = False
 
         if word in ["οὐκ", "καὶ", "τοῦτ’", "ἀλλ’", "εἰ"]:
             pre_esti_exception = True
@@ -230,6 +239,7 @@ def analyses(book_num):
             "parenthetical": parenthetical,
             "proclitic": proclitic,
             "enclitic": enclitic,
+            "dissyllabic_enclitic": dissyllabic_enclitic,
             "elision": elision,
             "movable": movable,
             "final_grave": final_grave,
@@ -280,6 +290,7 @@ for book_num in range(1, 28):
                 this["proclitic"],
                 this["pre_esti_exception"],
                 this["enclitic"],
+                this["dissyllabic_enclitic"],
             ]
         ]) + "::" + "".join([
             "#" if val else "-"
