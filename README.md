@@ -5,12 +5,6 @@ putting together existing accentuation code to explain accentuation of each word
 At the moment it's focused on describing the rules around proclitics and enclitics. `analyse_morphgnt.py` will output something like the following (for the entire SBLGNT, which I've committed as `accent-analysis.txt`):
 
 ```
-011037 * | ---- | **- | ---*-- ----- -- | - --* οὐκ οὐ
-011037 * | --*- | --* | ----*- ----- E* | - --* ἔστιν εἰμί
-011037 - | ---- | --* | ------ ----- -- | - --- μου ἐγώ
-```
-
-```
 011037 #::----::##-::---#--:-----:--::-:--# οὐκ οὐ οὐ
 011037 #::--#-::--#::----#-:-----:E#::-:--# ἔστιν ἐστί(ν) εἰμί
 011037 -::----::--#::------:-----:--::-:--- μου μου ἐγώ
