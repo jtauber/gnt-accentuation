@@ -225,9 +225,9 @@ def analyses(book_num):
                 {"\u0301": "A", "\u0342": "C"}[accent_type2[1]]
 
         enclitic_extra_accent = False
-        esti = False
+        paroxytone_esti = False
         if word in ["ἔστι", "ἔστιν"]:
-            esti = True
+            paroxytone_esti = True
             accent_type = "??"  # temporary: will change below
         elif proclitic_extra_accent:
             accent_type = "##"
@@ -271,7 +271,7 @@ def analyses(book_num):
             "enclitic_extra_accent": enclitic_extra_accent,
             "enclitic_lost_accent": enclitic_lost_accent,
             "pre_esti_exception": pre_esti_exception,
-            "esti": esti,
+            "paroxytone_esti": paroxytone_esti,
             "punc": punc,
             "accent_type": accent_type,
             "word": word,
@@ -283,7 +283,7 @@ def analyses(book_num):
 for book_num in range(1, 28):
     for prev, this, following in trigrams(analyses(book_num)):
         esti_emph = False
-        if this["esti"]:
+        if this["paroxytone_esti"]:
             if not prev or prev["pre_esti_exception"] or prev["punc"]:
                 this["accent_type"] = "E#"
             else:
@@ -316,7 +316,7 @@ for book_num in range(1, 28):
                 this["parenthetical"],
                 this["elision"],
                 this["movable"],
-                this["esti"],
+                this["paroxytone_esti"],
                 esti_emph,
             ]
         ]) + ":" + "".join([
@@ -336,6 +336,7 @@ for book_num in range(1, 28):
                 following and following["capitalized"],
                 following and following["parenthetical"],
                 following and following["enclitic"],
+                following and following["paroxytone_esti"],
             ]
         ])
 
