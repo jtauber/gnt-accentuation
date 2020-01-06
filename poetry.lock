@@ -1,0 +1,40 @@
+[[package]]
+category = "main"
+description = "Python 3 library for accenting (and analyzing the accentuation of) Ancient Greek words"
+name = "greek-accentuation"
+optional = false
+python-versions = "*"
+version = "1.2.0"
+
+[[package]]
+category = "main"
+description = "various utilities for processing Ancient Greek"
+name = "greek-utils"
+optional = false
+python-versions = "*"
+version = "0.2"
+
+[[package]]
+category = "main"
+description = "pip-installable MorphGNT/SBLGNT with Python API"
+name = "py-sblgnt"
+optional = false
+python-versions = "*"
+version = "0.10"
+
+[metadata]
+content-hash = "789c9193553e612f07d27375e1060873df1cdb156f7270df12b2ed81abc7b010"
+python-versions = "^3.8"
+
+[metadata.files]
+greek-accentuation = [
+    {file = "greek-accentuation-1.2.0.tar.gz", hash = "sha256:9761d95ddaa52ee6efcb66d68616556063291740d754a4c315e864706179c5d9"},
+    {file = "greek_accentuation-1.2.0-py2.py3-none-any.whl", hash = "sha256:d778afe55c64253938710715b5f0d648ec3361deaef136648d616d671989f841"},
+]
+greek-utils = [
+    {file = "greek-utils-0.2.tar.gz", hash = "sha256:60936ec42f800f974802ff6a65a3dab539df0a6a93a7cec001fe5e6c6c83f690"},
+    {file = "greek_utils-0.2-py3-none-any.whl", hash = "sha256:0ff1de56e4930169ace711dbf5c66e67a6738e8595abfd7f2e1d83492d447f73"},
+]
+py-sblgnt = [
+    {file = "py-sblgnt-0.10.tar.gz", hash = "sha256:f0eb2940e1c94fd576a0d492fd5e863f5218d56c09c324a1f8a1556364242edc"},
+]
