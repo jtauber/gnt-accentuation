@@ -209,7 +209,7 @@ Clitics that do *not* affect the preceding word:
 1.8 The masculine and feminine nominative articles (i.e. those with rough breathing): ὁ, ἡ, οἱ, αἱ
 
 
-We still need to test some converse cases. We classified the 4,325 case where an oxytone keeps its acute into 2.1, 2.2, or 2.3 but are there cases where a word fits into one of those categories but still has a grave?
+We still need to test some converse cases. We classified the 4,325 cases where an oxytone keeps its acute into 2.1, 2.2, or 2.3 but are there cases where a word fits into one of those categories but still has a grave?
 
 2.1 there seem to be 11 exceptions here:
 
